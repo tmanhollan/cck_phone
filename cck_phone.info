@@ -1,0 +1,7 @@
+; $Id$
+name = Phone Number
+description = "The phone module allows administrators to define a CCK field type for phone numbers."
+package = CCK
+dependencies[] = content
+core = 6.x
+
