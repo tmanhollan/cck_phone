@@ -7,6 +7,7 @@
  * Provide some verifications on the phone numbers
  */
 
+define('CCK_PHONE_PHONE_MIN_LENGTH', 4);   // Is there a phone number less than 4 digits?
 define('CCK_PHONE_PHONE_MAX_LENGTH', 15);  // International standard 15 digits
 define('CCK_PHONE_EXTENSION_MAX_LENGTH', 6);
 define('CCK_PHONE_CC_MAX_LENGTH', 2);
@@ -381,7 +382,7 @@ function _cck_phone_valid_input($input) {
     (?:           # }
       \d          # } 4-15 digits number
       [\s.()-]*   # } each followed by optional separator
-    ){4,15}       # }
+    ){'. CCK_PHONE_PHONE_MIN_LENGTH .','. CCK_PHONE_PHONE_MAX_LENGTH .'}       # }
     $/x';
 
   return preg_match($regex, $input);
@@ -400,6 +401,7 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
     $error_params = array(
       '%phone_input' => check_plain($phone_input),   // original phone input
       '%countrycode' => $countrycode,
+      '%min_length' => CCK_PHONE_PHONE_MIN_LENGTH,
       '%max_length' => CCK_PHONE_PHONE_MAX_LENGTH,
       '%ext_input' => check_plain($ext_input),
       '%ext_max_length' => CCK_PHONE_EXTENSION_MAX_LENGTH,
@@ -407,16 +409,21 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
 
     // Only allow digit, dash, space and bracket
     if (!_cck_phone_valid_input($phone_input, $ext_input)) {
-      form_set_error($field['field_name'], t('"%phone_input", "%ext_input": number must be digit only.', $error_params));
+      $error = t('Phone number must be %min_length-%max_length digits only.', $error_params);
+      if ($field['enable_extension'] && $ext_input != '') {
+        $error .= '<br />'. t('Phone extension must be less than %ext_max_length digits.', $error_params);
+      }
+
+      form_set_error($field['field_name'], $error);
     }
     else {
-      // Generic validation
+      // Generic number validation
       if (!cck_phone_validate_number($countrycode, $phone_input, $ext_input)) {
-        $error = 'Phone number must be digit only and no longer than %max_length';
-        if ($field['enable_extension']) {
-          $error .= ' and extension no longer than %ext_max_length';
+        $error = t('Phone number must be %min_length-%max_length digits only.', $error_params);
+        if ($field['enable_extension'] && $ext_input != '') {
+          $error .= '<br />'. t('Phone extension must be less than %ext_max_length digits.', $error_params);
         }
-        form_set_error($field['field_name'], t($error, $error_params));
+        form_set_error($field['field_name'], $error);
       }
       // Country level validation if enabled
       elseif ($field['enable_custom_country'] != 0 || is_null($field['enable_custom_country']) || !isset($field['enable_custom_country'])) {
@@ -663,7 +670,7 @@ function cck_phone_process($element, $edit, $form_state, $form) {
   $element['country_codes'] = array(
     '#type' => 'select',
 //    '#title' => 'Country code',
-    '#default_value' => isset($element['#value']['country_codes']) ? $element['#value']['country_codes'] : isset($field['default_country']) ? $field['default_country'] : NULL,
+    '#default_value' => ($element['#value']['number'] != '' && isset($element['#value']['country_codes'])) ? $element['#value']['country_codes'] : (isset($field['default_country']) ? $field['default_country'] : NULL),
     '#options' => _cck_phone_cc_options(),
   );
 

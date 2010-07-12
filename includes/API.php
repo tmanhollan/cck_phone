@@ -79,8 +79,11 @@ function CC_phone_field_settings($op, $field) {
  *   The error message to shown to user.
  *   Available parameters to use in the error message are
  *   - "%countrycode": the alpha-2 CC
- *   - "%phone_input": the original number input by user (could be invalid)
+ *   - "%phone_input": the original number input by user (check_plain'ed)
+ *   - "%min_length": allowed minimum length of the phone number
  *   - "%max_length": allowed maximum length of the phone number
+ *   - "%ext_input": the original extension input by user (check_plain'ed)
+ *   - "%ext_max_length": allowed maximum length of the phone extension
  * @return boolean
  *   TRUE if it is a valid phone number for that country, FALSE otherwise.
  */
@@ -118,8 +121,11 @@ function CC_sanitize_number(&$number) {
  *   The error message to shown to user.
  *   Available parameters to use in the error message are
  *   - "%countrycode": the alpha-2 CC
- *   - "%phone_input": the original number input by user (could be invalid)
+ *   - "%phone_input": the original number input by user (check_plain'ed)
+ *   - "%min_length": allowed minimum length of the phone number
  *   - "%max_length": allowed maximum length of the phone number
+ *   - "%ext_input": the original extension input by user (check_plain'ed)
+ *   - "%ext_max_length": allowed maximum length of the phone extension
  * @return boolean
  *   TRUE if it is a valid phone number for that country, FALSE otherwise.
  */
