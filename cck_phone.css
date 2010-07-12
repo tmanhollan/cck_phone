@@ -28,3 +28,8 @@
   float: left;
   width: 33%;
 }
+
+.cck-phone-settings .cck-phone-default-country {
+  background: #eee;
+  font-weight: bold;
+}

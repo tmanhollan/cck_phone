@@ -110,7 +110,7 @@ function cck_phone_field_settings($op, $field) {
       $form['country_codes']['country_selection'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Select country codes to be included'),
-        '#default_value' => variable_get('country_selection', array()),
+        '#default_value' => isset($field['country_selection']) && !empty($field['country_selection']) ? $field['country_selection'] : array($field['default_country'] => $field['default_country']),
         '#options' => _cck_phone_cc_options(TRUE),
         '#description' => t('Country marks with <em>*</em> has custom country code settings and/or validation.'),
       );
@@ -181,7 +181,7 @@ function cck_phone_field_settings($op, $field) {
       }
       return $settings;
 
-    // TODO: Views filters for phone number
+    // TODO: filters for phone number?
 //    case 'filters':
 //      break;
 
@@ -340,7 +340,16 @@ function theme_cck_phone_formatter_local($element) {
   return $phone;
 }
 
-function _cck_phone_cc_options($show_custom = FALSE) {
+/**
+ * Generate an array of country codes, for use in select or checkboxes form.
+ *
+ * @param boolean $show_custom
+ *   Mark item with '*' to indicate the country code has include file.
+ * @param array $country_selection
+ *   Limit the list to the countries listed in this array.
+ * @return string
+ */
+function _cck_phone_cc_options($show_custom = FALSE, $country_selection = array()) {
   $options = array();
 
   if ($show_custom) {
@@ -353,6 +362,10 @@ function _cck_phone_cc_options($show_custom = FALSE) {
     // faster using array key instead of in_array
     if ($show_custom && isset($custom_cc[$cc])) {
       $cc_name .= ' *';
+    }
+
+    if (!empty($country_selection) && $country_selection[$cc] === 0) {
+      continue;
     }
     $options[$cc] = check_plain($cc_name);
   }
@@ -377,6 +390,7 @@ function _cck_phone_custom_cc() {
 }
 
 function _cck_phone_valid_input($input) {
+  // lenient checking, as long as don't have invalid phone number character
   $regex = '/^
     [\s.()-]*     # optional separator
     (?:           # }
@@ -386,6 +400,14 @@ function _cck_phone_valid_input($input) {
     $/x';
 
   return preg_match($regex, $input);
+}
+
+function _cck_phone_valid_cc_input($list, $cc) {
+  if (isset($list[$cc]) && $list[$cc] == $cc) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 function _cck_phone_validate(&$item, $delta, $field, $node) {
@@ -400,7 +422,7 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
 
     $error_params = array(
       '%phone_input' => check_plain($phone_input),   // original phone input
-      '%countrycode' => $countrycode,
+      '%countrycode' => check_plain($countrycode),
       '%min_length' => CCK_PHONE_PHONE_MIN_LENGTH,
       '%max_length' => CCK_PHONE_PHONE_MAX_LENGTH,
       '%ext_input' => check_plain($ext_input),
@@ -417,12 +439,19 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
       form_set_error($field['field_name'], $error);
     }
     else {
+      if (!$field['all_country_codes']) {
+        if (!_cck_phone_valid_cc_input($field['country_selection'], $countrycode)) {
+          $error = t('Invalid country code "%countrycode" submitted.', $error_params);
+          form_set_error($field['field_name'], $error);
+        }
+      }
       // Generic number validation
       if (!cck_phone_validate_number($countrycode, $phone_input, $ext_input)) {
         $error = t('Phone number must be %min_length-%max_length digits only.', $error_params);
         if ($field['enable_extension'] && $ext_input != '') {
           $error .= '<br />'. t('Phone extension must be less than %ext_max_length digits.', $error_params);
         }
+
         form_set_error($field['field_name'], $error);
       }
       // Country level validation if enabled
@@ -661,7 +690,7 @@ function cck_phone_process($element, $edit, $form_state, $form) {
      '#maxlength' => CCK_PHONE_EXTENSION_MAX_LENGTH,
      '#size' => CCK_PHONE_EXTENSION_MAX_LENGTH,
 //     '#title' => t('ext'),
-     '#required' => ($delta == 0 && $field['extension'] == 'required') ? $field['required'] : FALSE,
+     '#required' => FALSE,
      '#default_value' => isset($element['#value']['extension']) ? $element['#value']['extension'] : NULL,
      '#prefix' => '<div class="cck-phone-extension">'. t('ext') .'</div>',
     );
@@ -671,8 +700,13 @@ function cck_phone_process($element, $edit, $form_state, $form) {
     '#type' => 'select',
 //    '#title' => 'Country code',
     '#default_value' => ($element['#value']['number'] != '' && isset($element['#value']['country_codes'])) ? $element['#value']['country_codes'] : (isset($field['default_country']) ? $field['default_country'] : NULL),
-    '#options' => _cck_phone_cc_options(),
   );
+  if ($field['all_country_codes']) {
+    $element['country_codes']['#options'] = _cck_phone_cc_options();
+  }
+  else {
+    $element['country_codes']['#options'] = _cck_phone_cc_options(FALSE, $field['country_selection']);
+  }
 
   return $element;
 }

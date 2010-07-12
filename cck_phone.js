@@ -48,7 +48,33 @@ Drupal.PhoneNumber.checkall = function(e) {
   }
   else {
     checkboxes.attr('checked', false);
+    Drupal.PhoneNumber.checkDefault();
     field.text(Drupal.t('Select all'));
+  }
+}
+
+/**
+ * Country selection should include default country code by default.
+ */
+Drupal.PhoneNumber.checkDefault = function(e) {
+  var defaultCC = $('#edit-default-country').val();
+  var span = $('<span class="default-cc"></span>').append(Drupal.t('Default'));
+
+  if ($('.cck-phone-default-country').find('.form-checkbox').val() == defaultCC) {
+    $('#edit-country-selection-' + defaultCC)
+      .attr('checked', 'checked');
+  }
+  else {
+    $('.cck-phone-default-country')
+      .removeClass('cck-phone-default-country')
+      .find('span.default-cc').remove();
+
+
+    $('#edit-country-selection-' + defaultCC)
+      .attr('checked', 'checked')
+      .parents('.form-item:first')
+        .addClass('cck-phone-default-country')
+        .append(span);
   }
 }
 
@@ -56,6 +82,24 @@ Drupal.PhoneNumber.checkall = function(e) {
  * Attach a filtering textfield to checkboxes.
  */
 Drupal.behaviors.PhoneNumber = function (context) {
+  // Toggle collapsible on selection
+  $('#edit-all-country-codes').change(function() {
+    if ($(this).attr('checked')) {
+      $('fieldset.cck-phone-settings').addClass('collapsed');
+    }
+    else {
+      $('fieldset.cck-phone-settings').removeClass('collapsed');
+    }
+  });
+  $('#edit-all-country-codes').trigger('change');
+
+  // Ensure the new default country is checked
+  $('#edit-default-country, .cck-phone-settings .form-checkboxes').bind('change', Drupal.PhoneNumber.checkDefault);
+  $('#edit-default-country').trigger('change');
+  $('form#content-field-edit-form').submit(Drupal.PhoneNumber.checkDefault);
+
+
+  // Filter for countries
   var form = '<div class="form-item">'
            + '  <label>' + Drupal.t('Filter') + ':</label> '
            + '  <input class="cck-phone-filter" type="text" size="16" />'

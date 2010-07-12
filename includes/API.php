@@ -78,7 +78,7 @@ function CC_phone_field_settings($op, $field) {
  * @param $error
  *   The error message to shown to user.
  *   Available parameters to use in the error message are
- *   - "%countrycode": the alpha-2 CC
+ *   - "%countrycode": the alpha-2 CC (check_plain'ed)
  *   - "%phone_input": the original number input by user (check_plain'ed)
  *   - "%min_length": allowed minimum length of the phone number
  *   - "%max_length": allowed maximum length of the phone number
@@ -120,7 +120,7 @@ function CC_sanitize_number(&$number) {
  * @param $error
  *   The error message to shown to user.
  *   Available parameters to use in the error message are
- *   - "%countrycode": the alpha-2 CC
+ *   - "%countrycode": the alpha-2 CC (check_plain'ed)
  *   - "%phone_input": the original number input by user (check_plain'ed)
  *   - "%min_length": allowed minimum length of the phone number
  *   - "%max_length": allowed maximum length of the phone number
