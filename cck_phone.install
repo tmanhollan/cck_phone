@@ -23,6 +23,7 @@ function cck_phone_install() {
 function cck_phone_uninstall() {
   drupal_load('module', 'content');
   content_notify('uninstall', 'cck_phone');
+  variable_del('cck_phone_custom_cc');
 }
 
 /**
