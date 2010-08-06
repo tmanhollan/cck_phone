@@ -773,7 +773,7 @@ function cck_phone_token_values($type, $object = NULL, $options = array()) {
 
     $tokens['number'] = $item['number'];
     $tokens['country_codes'] = $item['country_codes'];
-    $tokens['cck_phone']['extension'] = $item['extension'];
+    $tokens['extension'] = $item['extension'];
 
     return $tokens;
   }
