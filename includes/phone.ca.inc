@@ -23,7 +23,7 @@
  *   TRUE if it is a valid phone number for that country, FALSE otherwise.
  */
 function ca_validate_number($number, $ext = '', &$error) {
-  return us_validate_number($number, $ext = '', &$error);
+  return us_validate_number($number, $ext = '', $error);
 }
 
 /**
