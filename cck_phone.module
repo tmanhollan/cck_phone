@@ -585,10 +585,7 @@ function cck_phone_widget(&$form, &$form_state, $field, $items, $delta = 0) {
  * Implementation of hook_content_is_empty().
  */
 function cck_phone_content_is_empty($item, $field) {
-  if (empty($item['number'])) {
-    return TRUE;
-  }
-  return FALSE;
+  return empty($item['number']);
 }
 
 /**
