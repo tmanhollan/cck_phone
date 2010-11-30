@@ -36,6 +36,11 @@ function cck_phone_init() {
 
   // save the list of country codes phone validation
   variable_set('cck_phone_custom_cc', $countrycodes);
+
+  // Token module support.
+  if (module_exists('token')) {
+    module_load_include('inc', 'cck_phone', 'cck_phone.token');
+  }
 }
 
 /**
@@ -741,37 +746,4 @@ function cck_phone_validate_number($countrycode, $number, $ext = '') {
   }
 
   return TRUE;
-}
-
-
-/* ------ Token ------ */
-
-/**
- * Implementation of hook_token_list().
- */
-function cck_phone_token_list($type = 'all') {
-  if ($type == 'field' || $type == 'all') {
-    $tokens = array();
-
-    $tokens['cck_phone']['number'] = t('Phone number');
-    $tokens['cck_phone']['country_codes'] = t('Country code');
-    $tokens['cck_phone']['extension'] = t('Extension');
-
-    return $tokens;
-  }
-}
-
-/**
- * Implementation of hook_token_values().
- */
-function cck_phone_token_values($type, $object = NULL, $options = array()) {
-  if ($type == 'field') {
-    $item = $object[0];
-
-    $tokens['number'] = $item['number'];
-    $tokens['country_codes'] = $item['country_codes'];
-    $tokens['extension'] = $item['extension'];
-
-    return $tokens;
-  }
 }
