@@ -13,14 +13,14 @@ define('CCK_PHONE_EXTENSION_MAX_LENGTH', 6);
 define('CCK_PHONE_CC_MAX_LENGTH', 2);
 define('CCK_PHONE_MOBILE_AGENT', '/(ipod|iphone|android|blackberry|palm|nokia|opera\s+mobi|opera\s+mini|windows\s+ce|iemobile)/i');
 
+// load country codes
+require_once dirname(__FILE__) . '/cck_phone_countrycodes.inc';
+
 /**
  * Implementation of hook_init().
  * This hook is called on module initialization.
  */
 function cck_phone_init() {
-  // load country codes
-  module_load_include('inc', 'cck_phone', 'cck_phone_countrycodes');
-
   // load custom country codes phone number includes
   $path = drupal_get_path('module', 'cck_phone') .'/includes';
   // scan include phone numbers directory
