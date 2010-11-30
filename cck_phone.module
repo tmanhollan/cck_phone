@@ -377,13 +377,13 @@ function _cck_phone_cc_options($show_custom = FALSE, $country_selection = array(
  * Get list of country codes that has custom includes.
  *
  * @return
- *   Array of country codes abbreviation or FALSE if none exist.
+ *   Array of country codes abbreviation or empty array if none exist.
  */
 function _cck_phone_custom_cc() {
   static $cc;
 
   if (!isset($cc)) {
-    $cc = variable_get('cck_phone_custom_cc', FALSE);
+    $cc = variable_get('cck_phone_custom_cc', array());
   }
 
   return $cc;
