@@ -1,4 +1,3 @@
-// $Id$
 
 Drupal.PhoneNumber = Drupal.PhoneNumber || {};
 
