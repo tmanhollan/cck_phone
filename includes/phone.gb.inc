@@ -81,7 +81,7 @@ function gb_formatter_default($element) {
   // Display a global phone number with country code.
   $cc = cck_phone_countrycodes($item['country_codes']);
 
-  $result = preg_match(_uk_phone_rules, $item['number'], $matches);
+  $result = preg_match(_uk_phone_rules(), $item['number'], $matches);
 
   if ($result) {
     // output as +44 AA BBBB CCCC, +44 AAA BBB CCCC or +44 AAAA BBB CCC
@@ -109,7 +109,7 @@ function gb_formatter_default($element) {
  */
 function gb_formatter_local($element) {
   // Display a local phone number without country code.
-  $result = preg_match(_uk_phone_rules, $item['number'], $matches);
+  $result = preg_match(_uk_phone_rules(), $item['number'], $matches);
 
   if ($result) {
     // output as 0AA BBBB CCCC,  0AAA BBB CCCC or 0AAAA BBB CCC
