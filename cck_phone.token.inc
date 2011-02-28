@@ -26,13 +26,15 @@ function cck_phone_token_list($type = 'all') {
  * Implementation of hook_token_values().
  */
 function cck_phone_token_values($type, $object = NULL, $options = array()) {
+  $tokens = array();
+
   if ($type == 'field' && isset($object[0]['number'])) {
     $item = $object[0];
 
     $tokens['number'] = $item['number'];
     $tokens['country_codes'] = $item['country_codes'];
     $tokens['extension'] = $item['extension'];
-
-    return $tokens;
   }
+
+  return $tokens;
 }
