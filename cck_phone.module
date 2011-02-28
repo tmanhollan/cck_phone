@@ -20,22 +20,6 @@ require_once dirname(__FILE__) . '/cck_phone_countrycodes.inc';
  * This hook is called on module initialization.
  */
 function cck_phone_init() {
-  // load custom country codes phone number includes
-  $path = drupal_get_path('module', 'cck_phone') .'/includes';
-  // scan include phone numbers directory
-  $files = file_scan_directory($path, '^phone\..*\.inc$');
-
-  $countrycodes = array();
-  foreach ($files as $file) {
-    module_load_include('inc', 'cck_phone', '/includes/'. $file->name);
-    list ($dummy, $countrycode) = explode('.', $file->name);
-    // faster using array key
-    $countrycodes[$countrycode] = $countrycode;
-  }
-
-  // save the list of country codes phone validation
-  variable_set('cck_phone_custom_cc', $countrycodes);
-
   // Token module support.
   if (module_exists('token')) {
     module_load_include('inc', 'cck_phone', 'cck_phone.token');
@@ -384,13 +368,24 @@ function _cck_phone_cc_options($show_custom = FALSE, $country_selection = array(
  *   Array of country codes abbreviation or empty array if none exist.
  */
 function _cck_phone_custom_cc() {
-  static $cc;
+  static $countrycodes;
 
-  if (!isset($cc)) {
-    $cc = variable_get('cck_phone_custom_cc', array());
+  if (!isset($countrycodes)) {
+    // load custom country codes phone number includes
+    $path = drupal_get_path('module', 'cck_phone') .'/includes';
+    // scan include phone numbers directory
+    $files = file_scan_directory($path, '^phone\..*\.inc$');
+
+    $countrycodes = array();
+    foreach ($files as $file) {
+      module_load_include('inc', 'cck_phone', '/includes/'. $file->name);
+      list ($dummy, $countrycode) = explode('.', $file->name);
+      // faster using array key
+      $countrycodes[$countrycode] = $countrycode;
+    }
   }
 
-  return $cc;
+  return $countrycodes;
 }
 
 function _cck_phone_valid_input($input) {

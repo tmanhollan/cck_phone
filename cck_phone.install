@@ -45,3 +45,11 @@ function cck_phone_disable() {
   drupal_load('module', 'content');
   content_notify('disable', 'cck_phone');
 }
+
+/**
+ * Remove the variable 'cck_phone_custom_cc'.
+ */
+function cck_phone_update_6000() {
+  variable_del('cck_phone_custom_cc');
+  return array();
+}
