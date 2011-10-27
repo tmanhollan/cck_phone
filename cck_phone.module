@@ -410,14 +410,18 @@ function _cck_phone_valid_cc_input($list, $cc) {
 }
 
 function _cck_phone_validate(&$item, $delta, $field, $node) {
-  $phone_input = trim($item['number']);
-  $countrycode = trim($item['country_codes']);
+  if (isset($item['number'])) {
+    $phone_input = trim($item['number']);
+  }
+  if (isset($item['country_codes'])) {
+    $countrycode = trim($item['country_codes']);
+  }
   $ext_input = '';
-  if ($field['enable_extension']) {
+  if ($field['enable_extension'] && isset($item['extension'])) {
     $ext_input = trim($item['extension']);
   }
 
-  if ($phone_input && !(isset($field['widget']['default_value'][$delta]['number']) && $phone_input == $field['widget']['default_value'][$delta]['number'] && !$field['required'])) {
+  if (isset($phone_input) && !(isset($field['widget']['default_value'][$delta]['number']) && $phone_input == $field['widget']['default_value'][$delta]['number'] && !$field['required'])) {
 
     $error_params = array(
       '%phone_input' => check_plain($phone_input),   // original phone input
