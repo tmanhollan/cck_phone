@@ -101,7 +101,7 @@ function us_formatter_default($element) {
     $phone =  $cc['code'] .' ('. $matches[1] .') '. $matches[2] .' '. $matches[3];
   }
 
-  return $phone . $ext;
+  return $phone;
 }
 
 /**
