@@ -481,7 +481,9 @@ function _cck_phone_process(&$item, $delta = 0, $field, $node) {
   $widget = $field['widget']['default_value'][$delta];
   // Clean up the phone number.
   $item['number'] = cck_phone_clean_number($item['number']);
-  $item['extension'] = cck_phone_clean_number($item['extension']);
+  if (isset($item['extension'])) {
+    $item['extension'] = cck_phone_clean_number($item['extension']);
+  };
 
   // Don't save an invalid default value.
   if ((isset($widget['number']) && $item['number'] == $widget['number']) && (isset($widget['country_codes']) && $item['country_codes'] == $widget['country_codes']) && is_object($node)) {
@@ -681,7 +683,7 @@ function cck_phone_process($element, $edit, $form_state, $form) {
     '#size' => CCK_PHONE_PHONE_MAX_LENGTH,
 //    '#title' => t('Number'),
     '#description' => $element['#description'],
-    '#required' => ($delta == 0 && $field['number'] !== 'optional') ? $element['#required'] : FALSE,
+    '#required' => ($delta == 0 && $field['required'] == 1) ? $element['#required'] : FALSE,
     '#default_value' => isset($element['#value']['number']) ? $element['#value']['number'] : NULL,
   );
 
