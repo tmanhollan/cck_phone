@@ -422,7 +422,7 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
   }
 
   if (isset($phone_input) && !empty($phone_input)
-    && !(empty($field['widget']['default_value'][$delta]['number']) && $phone_input == $field['widget']['default_value'][$delta]['number'] && !$field['required'])) {
+    && !(empty($field['widget']['default_value'][0]['number']) && $phone_input == $field['widget']['default_value'][0]['number'] && !$field['required'])) {
 
     $error_params = array(
       '%phone_input' => check_plain($phone_input),   // original phone input
@@ -478,7 +478,8 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
 }
 
 function _cck_phone_process(&$item, $delta = 0, $field, $node) {
-  $widget = $field['widget']['default_value'][$delta];
+  dsm($field['widget']['default_value']);
+  $widget = $field['widget']['default_value'][0];
   // Clean up the phone number.
   $item['number'] = cck_phone_clean_number($item['number']);
   if (isset($item['extension'])) {
