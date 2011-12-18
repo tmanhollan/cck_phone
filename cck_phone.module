@@ -478,7 +478,6 @@ function _cck_phone_validate(&$item, $delta, $field, $node) {
 }
 
 function _cck_phone_process(&$item, $delta = 0, $field, $node) {
-  dsm($field['widget']['default_value']);
   $widget = $field['widget']['default_value'][0];
   // Clean up the phone number.
   $item['number'] = cck_phone_clean_number($item['number']);
