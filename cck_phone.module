@@ -11,6 +11,7 @@ define('CCK_PHONE_PHONE_MAX_LENGTH', 15);  // International standard 15 digits
 define('CCK_PHONE_EXTENSION_MAX_LENGTH', 6);
 define('CCK_PHONE_CC_MAX_LENGTH', 2);
 define('CCK_PHONE_MOBILE_AGENT', '/(ipod|iphone|android|blackberry|palm|nokia|opera\s+mobi|opera\s+mini|windows\s+ce|iemobile)/i');
+define('CCK_PHONE_PHONE_TYPE_MAX_LENGTH', 50);
 
 // load country codes
 require_once dirname(__FILE__) . '/cck_phone_countrycodes.inc';
@@ -43,7 +44,13 @@ function cck_phone_theme() {
     'cck_phone_formatter_local' => array(
       'arguments' => array('element' => NULL),
     ),
+    'cck_phone_formatter_local_with_type' => array(
+      'arguments' => array('element' => NULL),
+    ),
     'cck_phone_mobile_tel' => array(
+      'arguments' => array('element' => NULL, 'phone' => ''),
+    ),
+    'cck_phone_type_label' => array(
       'arguments' => array('element' => NULL, 'phone' => ''),
     ),
   );
@@ -123,6 +130,13 @@ function cck_phone_field_settings($op, $field) {
         '#default_value' => isset($field['enable_mobile']) && ($field['enable_mobile'] !== '') ? $field['enable_mobile'] : FALSE,
         '#description' => t('Check this to enable phone number link on mobile browsers (RFC3966).'),
       );
+      
+      $form['enable_type_label'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable phone-type label'),
+        '#default_value' => isset($field['enable_type_label']) && ($field['enable_type_label'] !== '') ? $field['enable_type_label'] : FALSE,
+        '#description' => t('Check this to enable a phone-type label field.'),
+      );
 
       // Display country specific settings
       foreach (_cck_phone_custom_cc() as $cc) {
@@ -158,7 +172,7 @@ function cck_phone_field_settings($op, $field) {
       break;
 
     case 'save':
-      $settings = array('default_country', 'all_country_codes', 'country_selection', 'enable_custom_country', 'enable_extension', 'enable_mobile');
+      $settings = array('default_country', 'all_country_codes', 'country_selection', 'enable_custom_country', 'enable_extension', 'enable_mobile', 'enable_type_label');
 
       // Save country specific settings
       foreach (_cck_phone_custom_cc() as $cc)  {
@@ -188,6 +202,11 @@ function cck_phone_field_settings($op, $field) {
         'extension' => array(
           'type' => 'varchar',
           'length' => CCK_PHONE_EXTENSION_MAX_LENGTH,
+          'not null' => FALSE,
+        ),
+        'type_label' => array(
+          'type' => 'varchar',
+          'length' => CCK_PHONE_PHONE_TYPE_MAX_LENGTH,
           'not null' => FALSE,
         ),
       );
@@ -236,6 +255,11 @@ function cck_phone_field_formatter_info() {
     ),
     'local' => array(
       'label' => 'Local phone number',
+      'field types' => array('phone_number'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'local_with_type' => array(
+      'label' => 'Local phone number with Type Label',
       'field types' => array('phone_number'),
       'multiple values' => CONTENT_HANDLE_CORE,
     ),
@@ -295,6 +319,11 @@ function theme_cck_phone_formatter_default($element) {
 
     // Mobile browsers support
     $phone = theme('cck_phone_mobile_tel', $element, $phone);
+    
+    // Type Label
+    if (!empty($item['type_label'])) {
+      $phone = theme('cck_phone_type_label', $element, $phone);
+    }
   }
 
   return $phone;
@@ -329,6 +358,27 @@ function theme_cck_phone_formatter_local($element) {
     $phone = theme('cck_phone_mobile_tel', $element, $phone);
   }
 
+  return $phone;
+}
+
+function theme_cck_phone_formatter_local_with_type($element) {
+  $phone = theme('cck_phone_formatter_local', $element);
+  // Type Label
+  if ($phone && !empty($element['#item']['type_label'])) {
+    $phone = theme('cck_phone_type_label', $element, $phone);
+  }
+  return $phone;
+}
+
+/*
+ * Theme function for phone type label
+ */
+function theme_cck_phone_type_label($element, $phone) {
+  // default to label: number, but this could be enhanced with options to place the label after or above.
+  $item = $element['#item'];
+  if (!empty($item['type_label'])) {
+    $phone = $item['type_label'] . ': ' . $phone;
+  }
   return $phone;
 }
 
@@ -667,6 +717,10 @@ function theme_phone_number($element) {
     $output .= '<div class="cck-phone-field-ext cck-phone-column">'. $prefix . theme('textfield', $element['extension']) .'</div>';
   }
   $output .= '<div class="cck-phone-field-cc cck-phone-column">'. theme('select', $element['country_codes']) .'</div>';
+  if (isset($element['type_label'])) {
+    $prefix = isset($element['type_label']['#prefix']) ? $element['type_label']['#prefix'] : '';
+    $output .= '<div class="cck-phone-field-type-label cck-phone-column">' . $prefix . theme('textfield', $element['type_label']) . '</div>';
+  }
   $output .= '</div></div>';
 
   return $output;
@@ -714,7 +768,18 @@ function cck_phone_process($element, $edit, $form_state, $form) {
   else {
     $element['country_codes']['#options'] = _cck_phone_cc_options(FALSE, $field['country_selection']);
   }
-
+  
+  if ($field['enable_type_label']) {
+    $element['type_label'] = array(
+        '#type' => 'textfield',
+        '#maxlength' => CCK_PHONE_PHONE_TYPE_MAX_LENGTH,
+        '#size' => 25,
+        '#prefix' => '<div class="cck-phone-type-label">' . t('type') . '</div>',
+        '#required' => FALSE,
+        '#default_value' => isset($element['#value']['type_label']) ? $element['#value']['type_label'] : NULL,
+    );
+  }
+  
   return $element;
 }
 

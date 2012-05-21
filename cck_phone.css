@@ -15,11 +15,11 @@
 .cck-phone-field-ext {
   width: 9em;
 }
-.cck-phone-extension {
+.cck-phone-extension, .cck-phone-type-label {
   float: left;
   margin: 0 .5em;
 }
-.cck-phone-field-ext .form-item {
+.cck-phone-field-ext .form-item, .cck-phone-field-type-label .form-item {
   float: left;
 }
 
