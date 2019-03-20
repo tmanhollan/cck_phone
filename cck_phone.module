@@ -412,6 +412,7 @@ function _cck_phone_cc_options($show_custom = FALSE, $country_selection = array(
     $options[$cc] = check_plain($cc_name);
   }
 
+  asort($options);
   return $options;
 }
 
